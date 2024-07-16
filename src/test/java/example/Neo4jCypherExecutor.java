@@ -106,21 +106,21 @@ public void separations(){
             System.err.println("Error executing Cypher queries: " + e.getMessage());
         }
     }
-
     public void collaborativeFiltering() {
         try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             String apocQuery = "MATCH (u1:User {name: \"Guy Davis\"})-[r1:RATED]->(m:Movie)\n" +
                     "MATCH (u2:User {name: \"Misty Williams\"})-[r2:RATED]->(m)\n" +
                     //"RETURN u1 AS User1, u2 AS User2,r1,r2 , m AS Movie\n" +
-                    "RETURN u1.name AS User1, u2.name AS User2,r1.rating,r2.rating , m.title AS Movie";
-            session.writeTransaction(tx -> {
+                    "RETURN u1.name AS User1, u2.name AS User2, r1.rating AS Rating1, r2.rating AS Rating2, m.title AS Movie";
+
+            session.readTransaction(tx -> {
                 Result result = tx.run(apocQuery);
                 while (result.hasNext()) {
-                    org.neo4j.driver.Record record = result.next();
+                    Record record = result.next();
                     System.out.println("User1: " + record.get("User1").asString());
                     System.out.println("User2: " + record.get("User2").asString());
-                    System.out.println("Rating1: " + record.get("Rating1").asInt());
-                    System.out.println("Rating2: " + record.get("Rating2").asInt());
+                    System.out.println("Rating1: " + record.get("Rating1").asDouble());
+                    System.out.println("Rating2: " + record.get("Rating2").asDouble());
                     System.out.println("Movie: " + record.get("Movie").asString());
                     System.out.println();
                 }

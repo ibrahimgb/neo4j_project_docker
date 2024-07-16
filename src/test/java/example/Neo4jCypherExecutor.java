@@ -10,6 +10,7 @@ import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
 import org.neo4j.driver.*;
+import java.util.List;
 
 public class Neo4jCypherExecutor {
 
@@ -133,6 +134,44 @@ public void separations(){
         }
     }
 
+    public void contentBasedFiltering() {
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
+            String apocQuery = "MATCH (inception:Movie {title: \"Inception\"})-[r1:IN_GENRE]->(g:Genre)\n" +
+                    "MATCH (m:Movie)-[r2:IN_GENRE]->(g)\n" +
+                    "WITH m, COLLECT(g.name) AS genres\n" +
+                    "RETURN m.title AS movie, genres AS Genres";
+                    /*
+                    * MATCH (inception:Movie {title: "Inception"})-[r1:IN_GENRE]->(g:Genre)
+                    MATCH (m:Movie)-[r2:IN_GENRE]->(g)
+                    WITH m, g, r2, COLLECT(g.name) AS genres
+                    RETURN m, g, r2
+                    LIMIT 50*/
+            session.readTransaction(tx -> {
+                Result result = tx.run(apocQuery);
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    // Retrieve values from the record
+                    String movieTitle = record.get("movie").asString();
+                    List<Object> genres = record.get("Genres").asList();
+
+                    // Print the retrieved values
+                    System.out.println("Movie: " + movieTitle);
+                    System.out.print("Genres: ");
+                    for (Object genre : genres) {
+                        System.out.print(genre.toString() + ", ");
+                    }
+                    System.out.println("\n");
+                }
+                return null;
+            });
+
+            System.out.println("Cypher query executed successfully on database: '" + database + "'.");
+        } catch (Exception e) {
+            System.err.println("Error executing Cypher query: " + e.getMessage());
+        }
+    }
+
+
 
     public static void main(String[] args) {
         String uri = "bolt://localhost:7687";
@@ -144,10 +183,13 @@ public void separations(){
         Neo4jCypherExecutor executor = new Neo4jCypherExecutor(uri, user, password, database);
         executor.ensureDatabaseExists();
         //executor.executeCypherFile(filePath);
-        executor.reviewsCount();
-        executor.recommendItems();
+        //executor.reviewsCount();
+        //executor.recommendItems();
         executor.separations();
-        executor.collaborativeFiltering();
+        //executor.collaborativeFiltering();
+        //executor.contentBasedFiltering();
+
+
         executor.close();
     }
 }

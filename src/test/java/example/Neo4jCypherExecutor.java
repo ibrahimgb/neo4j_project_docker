@@ -12,6 +12,12 @@ import org.neo4j.driver.TransactionWork;
 import org.neo4j.driver.*;
 import java.util.List;
 
+import org.neo4j.driver.Record;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+
 public class Neo4jCypherExecutor {
 
     private final Driver driver;
@@ -202,10 +208,54 @@ public void separations(){
         }
     }
 
+    //                       Weighted Content Algorithm
     // Compute a weighted sum based on the number and types of overlapping traits
 
-    public void recommendationWeightedContent(){}
-//name: Omar Huffman
+    public void recommendationWeightedContent(){
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
+            String apocQuery = "MATCH (u:User{name: \"Omar Huffman\"})-[r:RATED]->(m:Movie)-[:IN_GENRE]->(g:Genre)\n" +
+                    "WHERE r.rating > 3\n" +
+                    "WITH COLLECT(DISTINCT g.name) AS allGenres, m\n" +
+                    "MATCH (A:Person)-[:ACTED_IN]->(m)\n" +
+                    "WITH allGenres, COLLECT(DISTINCT A.name) AS allActors, m\n" +
+                    "MATCH (D:Person)-[:DIRECTED]->(m)\n" +
+                    "WITH allGenres, allActors, COLLECT(DISTINCT D.name) AS allDirectors\n" +
+                    "\n" +
+                    "MATCH (gm:Movie)\n" +
+                    "WITH gm, allGenres, allActors, allDirectors,\n" +
+                    "     size([a IN allActors WHERE (gm)<-[:ACTED_IN]-(:Person {name: a})]) * 3 AS actorScore,\n" +
+                    "     size([g IN allGenres WHERE (gm)-[:IN_GENRE]->(:Genre {name: g})]) * 5 AS genreScore,\n" +
+                    "     size([d IN allDirectors WHERE (gm)<-[:DIRECTED]-(:Person {name: d})]) * 4 AS directorScore\n" +
+                    "WITH gm.title AS movie_name, (actorScore + genreScore + directorScore) AS score\n" +
+                    "RETURN movie_name, score\n";
+                    //+"ORDER BY score DESC";
+
+            session.readTransaction(tx -> {
+                Result result = tx.run(apocQuery);
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    // Retrieve values from the record
+                    String movieTitle = record.get("movie_name").asString();
+                    Double movieScore = record.get("score").asDouble();
+
+                    // System.out.println(record.get("score").asInt());
+                    // Print the retrieved values
+                    System.out.println("Suggested movie: ''" + movieTitle+ "'' with score:"+ movieScore + ".");
+                }
+
+                return null;
+            });
+
+            System.out.println("Cypher query executed successfully on database: '" + database + "'.");
+        } catch (Exception e) {
+            System.err.println("Error executing Cypher query: " + e.getMessage());
+        }
+    }
+
+
+    // Content-Based Similarity Metric
+
+
 
 
     public static void main(String[] args) {
@@ -223,7 +273,8 @@ public void separations(){
         executor.separations();
         //executor.collaborativeFiltering();
         //executor.contentBasedFiltering();
-        executor.personalizedRecommendations();
+        //executor.personalizedRecommendations();
+        executor.recommendationWeightedContent();
 
         executor.close();
     }

@@ -171,6 +171,41 @@ public void separations(){
         }
     }
 
+    //Personalized Recommendations Based on Genres
+    public void personalizedRecommendations() {
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
+            String apocQuery = "MATCH (u:User)-[r:RATED]->(watched_movies:Movie)-[:IN_GENRE]->(g:Genre)\n" +
+                    "WHERE r.rating > 4.5\n" +
+                    "WITH COLLECT(DISTINCT g.name) AS genres\n" +
+                    "MATCH (all_movies:Movie)-[:IN_GENRE]->(gm:Genre)\n" +
+                    "WHERE gm.name IN genres\n" +
+                    //"AND NOT (u)-[:RATED]->(all_movies)\n" +  // Exclude movies already rated by the user
+                    "RETURN all_movies.title as suggested_movies";
+
+            session.readTransaction(tx -> {
+                Result result = tx.run(apocQuery);
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    // Retrieve values from the record
+                    String movieTitle = record.get("suggested_movies").asString();
+
+                    // Print the retrieved values
+                    System.out.println("Suggested movie: " + movieTitle);
+                }
+
+                return null;
+            });
+
+            System.out.println("Cypher query executed successfully on database: '" + database + "'.");
+        } catch (Exception e) {
+            System.err.println("Error executing Cypher query: " + e.getMessage());
+        }
+    }
+
+    // Compute a weighted sum based on the number and types of overlapping traits
+
+    public void recommendationWeightedContent(){}
+//name: Omar Huffman
 
 
     public static void main(String[] args) {
@@ -181,14 +216,14 @@ public void separations(){
         String filePath = "/all-plain.cypher"; // replace with the actual path to your Cypher file
 
         Neo4jCypherExecutor executor = new Neo4jCypherExecutor(uri, user, password, database);
-        executor.ensureDatabaseExists();
+        //executor.ensureDatabaseExists();
         //executor.executeCypherFile(filePath);
         //executor.reviewsCount();
         //executor.recommendItems();
         executor.separations();
         //executor.collaborativeFiltering();
         //executor.contentBasedFiltering();
-
+        executor.personalizedRecommendations();
 
         executor.close();
     }

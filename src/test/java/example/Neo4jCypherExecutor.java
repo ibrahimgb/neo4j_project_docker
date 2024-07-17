@@ -253,8 +253,53 @@ public void separations(){
     }
 
 
-    // Content-Based Similarity Metric
+    // Content-Based Similarity Metrics
 
+    public void jaccardSimilarityOfGenres(){
+        try (Session session = driver.session(SessionConfig.forDatabase(database))) {
+            String apocQuery = "\n" +
+                    // Step 1: Retrieve all movies and their associated genres, actors, and directors
+                    "MATCH (m:Movie)-[:IN_GENRE]->(g:Genre)\n" +
+                    "WITH m.title AS movie, collect(g.name) AS genres\n" +
+                    "\n" +
+                    "\n" +
+                    // Step 2: Retrieve genres for the movie "Inception"
+                    "MATCH (inception:Movie {title: 'Inception'})-[:IN_GENRE]->(inceptionGenre:Genre)\n" +
+                    "WITH inception, collect(inceptionGenre.name) AS inceptionGenres, movie, genres\n" +
+                    "\n" +
+                    // Step 3: Calculate Jaccard similarity for genres and find movies similar to "Inception"
+                    "WHERE movie <> 'Inception' // Exclude the movie \"Inception\" itself\n" +
+                    "WITH movie, genres, inceptionGenres,\n" +
+                    "     apoc.coll.intersection(genres, inceptionGenres) AS genreIntersection,\n" +
+                    "     apoc.coll.union(genres, inceptionGenres) AS genreUnion\n" +
+                    "WITH movie, (toFloat(size(genreIntersection)) / size(genreUnion)) AS genreJaccard\n" +
+                    "ORDER BY genreJaccard DESC\n" +
+                    "LIMIT 10\n" +
+                    "RETURN movie, genreJaccard";
+
+            session.readTransaction(tx -> {
+                Result result = tx.run(apocQuery);
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    // Retrieve values from the record
+                    String movieTitle = record.get("movie").asString();
+                    Double movieJaccardIndex = record.get("genreJaccard").asDouble();
+
+                    // System.out.println(record.get("score").asInt());
+                    // Print the retrieved values
+                    System.out.println("Suggested movie: ''" + movieTitle+ "'' with Jaccard Index:"+ movieJaccardIndex + ".");
+                }
+
+                return null;
+            });
+
+            System.out.println("Cypher query executed successfully on database: '" + database + "'.");
+        } catch (Exception e) {
+            System.err.println("Error executing Cypher query: " + e.getMessage());
+        }
+    }
+
+    // Collaborative Filtering – Leveraging Movie Ratings
 
 
 
@@ -274,8 +319,8 @@ public void separations(){
         //executor.collaborativeFiltering();
         //executor.contentBasedFiltering();
         //executor.personalizedRecommendations();
-        executor.recommendationWeightedContent();
-
+        //executor.recommendationWeightedContent();
+        //executor.jaccardSimilarityOfGenres();
         executor.close();
     }
 }

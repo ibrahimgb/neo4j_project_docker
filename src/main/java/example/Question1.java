@@ -18,9 +18,9 @@ public class Question1 {
 
     public static class EntityContainer {
         public String title;
-        public int reviews;
+        public long reviews;
 
-        public EntityContainer(String title, int reviews) {
+        public EntityContainer(String title, long reviews) {
             this.title = title;
             this.reviews = reviews;
         }

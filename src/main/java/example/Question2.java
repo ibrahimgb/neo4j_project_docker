@@ -32,8 +32,8 @@ public class Question2 {
             this.Genre=Genre;
         }
     }
-
-    @Procedure(name = "recommend1.recommendItems", mode = Mode.READ)
+////works!
+    @Procedure(name = "recommend.recommendItems", mode = Mode.READ)
     public Stream<EntityContainer> recommendItems() {
         String apocQuery = "MATCH (joe:Actor {name: \"Joe Pesci\"})-[r1:ACTED_IN]->(m:Movie)\n" +
                 "MATCH (robert:Actor {name: \"Robert De Niro\"})-[r2:ACTED_IN]->(m)\n" +

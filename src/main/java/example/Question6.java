@@ -27,8 +27,9 @@ public class Question6 {
             this.score = score;
         }
     }
+    ////works
     // "Omar Huffman" "Mr. Jason Love" "Angela Thompson"
-    @Procedure(name = "recommend5.weightedContentAlgorithm", mode = Mode.READ)
+    @Procedure(name = "recommend.weightedContentAlgorithm", mode = Mode.READ)
     public Stream<EntityContainer> weightedContentAlgorithm() {
         String apocQuery =
                 // Collect the genres, actors, and directors for movies rated above 3 by Omar Huffman
@@ -46,7 +47,7 @@ public class Question6 {
                         "     size([g IN allGenres WHERE (gm)-[:IN_GENRE]->(:Genre {name: g})]) * 5 AS genreScore, \n" +
                         "     size([d IN allDirectors WHERE (gm)<-[:DIRECTED]-(:Person {name: d})]) * 4 AS directorScore \n" +
                         "WITH gm.title AS movie_name, (actorScore + genreScore + directorScore) AS score \n" +
-                        "ORDER BY score DESC \n"+
+                        //"ORDER BY score DESC \n"+
                         "RETURN movie_name, score ";
 
         Result result = tx.execute(apocQuery);

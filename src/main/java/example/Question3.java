@@ -29,8 +29,9 @@ public class Question3 {
             this.m=m;
         }
     }
+    ////Works
 // "Toy Story"  "Jumanji"  "Grumpier Old Men"  "Waiting to Exhale"
-    @Procedure(name = "recommend2.collaborativeFiltering ", mode = Mode.READ)
+    @Procedure(name = "recommend.collaborativeFiltering", mode = Mode.READ)
     public Stream<EntityContainer> collaborativeFiltering () {
         String apocQuery = "MATCH (u:User)-[: RATED]->(m1:Movie {title: \"Waiting to Exhale\"})\n" +
                 "MATCH (u)-[:RATED]->(m2:Movie {title: \"Jumanji\"})\n" +

@@ -139,7 +139,7 @@ public void separations(){
             System.err.println("Error executing Cypher queries: " + e.getMessage());
         }
     }
-
+    // Find movies most similar to Inception based on shared genres
     public void contentBasedFiltering() {
         try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             String apocQuery = "MATCH (inception:Movie {title: \"Inception\"})-[r1:IN_GENRE]->(g:Genre)\n" +
@@ -177,7 +177,7 @@ public void separations(){
         }
     }
 
-    //Personalized Recommendations Based on Genres
+    // Content recommendation by overlapping genres
     public void personalizedRecommendations() {
         try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             String apocQuery = "MATCH (u:User)-[r:RATED]->(watched_movies:Movie)-[:IN_GENRE]->(g:Genre)\n" +
@@ -300,6 +300,9 @@ public void separations(){
     }
 
     // Collaborative Filtering – Leveraging Movie Ratings
+
+
+
 
 
 

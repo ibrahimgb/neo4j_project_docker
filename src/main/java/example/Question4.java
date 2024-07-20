@@ -29,8 +29,9 @@ public class Question4 {
 
         }
     }
+    ////works
     // "Toy Story"  "Jumanji"  "Grumpier Old Men"  "Waiting to Exhale"
-    @Procedure(name = "recommend3.similarityBasedOnCommonGenres", mode = Mode.READ)
+    @Procedure(name = "recommend.similarityBasedOnCommonGenres", mode = Mode.READ)
     public Stream<EntityContainer> similarityBasedOnCommonGenres () {
         String apocQuery = "MATCH (inception:Movie {title: \"Inception\"})-[r1:IN_GENRE]->(g:Genre)\n" +
                 "MATCH (m:Movie)-[r2:IN_GENRE]->(g)\n" +

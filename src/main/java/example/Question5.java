@@ -28,7 +28,8 @@ public class Question5 {
         }
     }
     // "Omar Huffman" "Mr. Jason Love" "Angela Thompson"
-    @Procedure(name = "recommend4.personalizedRecommendationsBasedOnGenres", mode = Mode.READ)
+    ////Works
+    @Procedure(name = "recommend.personalizedRecommendationsBasedOnGenres", mode = Mode.READ)
     public Stream<EntityContainer> personalizedRecommendationsBasedOnGenres () {
         String apocQuery = "MATCH (u:User{name: \"Jessica Sherman\"})-[r:RATED]->(watched_movies:Movie)-[:IN_GENRE]->(g:Genre)\n" +
                 "WITH u, COLLECT(DISTINCT g.name) AS genres, COLLECT(watched_movies) AS watched_movies_list\n" +

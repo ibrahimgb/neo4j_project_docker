@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j_project #neo4j
+    environment:
+      NEO4J_AUTH: neo4j/admin12345
+        - NEO4JLABS_PLUGINS='["apoc"]'
+        - NEO4J_dbms_default_database=recommendations
+
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # BOLT
+    volumes:
+      - neo4j_data:/data
+      - ./conf:/conf
+      - ./import:/import
+
+volumes:
+  neo4j_data:
+    driver: local
+#docker-compose up -d
+#http://localhost:7474
+
+#docker run \
+#    --name neo4j \
+#    -p 7474:7474 -p 7687:7687 \
+#    -e NEO4J_dbms_default_database=neo4j \
+#    -d neo4j:latest
+
+#docker container prune
+#docker-compose up -d

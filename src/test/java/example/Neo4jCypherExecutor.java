@@ -301,11 +301,6 @@ public void separations(){
 
     // Collaborative Filtering – Leveraging Movie Ratings
 
-
-
-
-
-
     public static void main(String[] args) {
         String uri = "bolt://localhost:7687";
         String user = "neo4j";
@@ -323,7 +318,7 @@ public void separations(){
         //executor.contentBasedFiltering();
         //executor.personalizedRecommendations();
         //executor.recommendationWeightedContent();
-        //executor.jaccardSimilarityOfGenres();
+        executor.jaccardSimilarityOfGenres();
         executor.close();
     }
 }
